@@ -116,11 +116,14 @@
   <label>Berat Badan (kg)</label>
   <input type="number" id="berat">
 
-<label>Jenis Kelamin</label><br>
+<label>Jenis Kelamin</label> <select id="jk">
 
-<input type="radio" name="jk" value="l"> Laki-laki<br> <input type="radio" name="jk" value="p"> Perempuan<br>
+  <option value="">-- Pilih Jenis Kelamin --</option>
+  <option value="l">Laki-laki</option>
+  <option value="p">Perempuan</option>
+</select>
 
-  
+
   <button onclick="hitung()"><i class="fa-solid fa-calculator"></i> Hitung</button>
 
   <div class="result" id="hasil"></div>
