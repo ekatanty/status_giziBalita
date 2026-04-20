@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Cek Status Gizi Bayi</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f4f6f8;
+      padding: 20px;
+    }
+    .container {
+      max-width: 400px;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+    }
+    .result {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Cek Stunting Bayi</h2>
+
+  <label>Umur (bulan)</label>
+  <input type="number" id="umur">
+
+  <label>Tinggi Badan (cm)</label>
+  <input type="number" id="tinggi">
+
+  <label>Berat Badan (kg)</label>
+  <input type="number" id="berat">
+
+  <button onclick="hitung()">Hitung</button>
+
+  <div class="result" id="hasil"></div>
+</div>
+
+<script>
+function hitung() {
+  let umur = parseFloat(document.getElementById("umur").value);
+  let tinggi = parseFloat(document.getElementById("tinggi").value);
+  let berat = parseFloat(document.getElementById("berat").value);
+
+  if (!umur || !tinggi || !berat) {
+    document.getElementById("hasil").innerText = "Isi semua data!";
+    return;
+  }
+
+  // SIMULASI (bukan WHO asli)
+  let standarTinggi = 50 + (umur * 0.7); 
+  let standarBerat = 3 + (umur * 0.25);
+
+  let zTinggi = (tinggi - standarTinggi) / 3;
+  let zBerat = (berat - standarBerat) / 2;
+
+  let statusTinggi = "";
+  let statusBerat = "";
+
+  // Kategori TB/U (stunting)
+  if (zTinggi < -2) {
+    statusTinggi = "Stunting";
+  } else {
+    statusTinggi = "Normal";
+  }
+
+  // Kategori BB/U
+  if (zBerat < -2) {
+    statusBerat = "Gizi Kurang";
+  } else {
+    statusBerat = "Gizi Baik";
+  }
+
+  document.getElementById("hasil").innerHTML =
+    "Status Tinggi: " + statusTinggi + "<br>" +
+    "Status Berat: " + statusBerat;
+}
+</script>
+
+</body>
+</html>
