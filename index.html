@@ -1,48 +1,118 @@
 <!DOCTYPE html>
+
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Cek Status Gizi Bayi</title>
+  <title>Cek Status Gizi Balita</title>
   <style>
     body {
-      font-family: Arial;
-      background: #f4f6f8;
-      padding: 20px;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      margin: 0;
+      padding: 0;
     }
-    .container {
-      max-width: 400px;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      margin: auto;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    input, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-    }
-    .result {
-      margin-top: 15px;
-      font-weight: bold;
-    }
+
+```
+.container {
+  max-width: 420px;
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  margin: 50px auto;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+h2 {
+  text-align: center;
+  color: #333;
+}
+
+label {
+  margin-top: 10px;
+  display: block;
+  font-weight: 500;
+  color: #555;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  transition: 0.3s;
+}
+
+input:focus {
+  border-color: #4facfe;
+  outline: none;
+  box-shadow: 0 0 5px rgba(79,172,254,0.5);
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 20px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #43e97b, #38f9d7);
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.result {
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: bold;
+  display: none;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.normal {
+  background: #d4edda;
+  color: #155724;
+}
+
+.warning {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.danger {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+```
+
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h2>Cek Status Balita</h2>
+  <h2>👶 Cek Status Gizi Balita</h2>
 
-  <label>Umur (bulan)</label>
-  <input type="number" id="umur">
+<label>Umur (bulan)</label> <input type="number" id="umur" placeholder="Contoh: 12">
 
-  <label>Tinggi Badan (cm)</label>
-  <input type="number" id="tinggi">
+<label>Tinggi Badan (cm)</label> <input type="number" id="tinggi" placeholder="Contoh: 75">
 
-  <label>Berat Badan (kg)</label>
-  <input type="number" id="berat">
+<label>Berat Badan (kg)</label> <input type="number" id="berat" placeholder="Contoh: 9">
 
-  <button onclick="hitung()">Hitung</button>
+<button onclick="hitung()">Hitung Status</button>
 
   <div class="result" id="hasil"></div>
 </div>
@@ -52,13 +122,15 @@ function hitung() {
   let umur = parseFloat(document.getElementById("umur").value);
   let tinggi = parseFloat(document.getElementById("tinggi").value);
   let berat = parseFloat(document.getElementById("berat").value);
+  let hasil = document.getElementById("hasil");
 
-  if (!umur || !tinggi || !berat) {
-    document.getElementById("hasil").innerText = "Isi semua data!";
+  if (isNaN(umur) || isNaN(tinggi) || isNaN(berat)) {
+    hasil.style.display = "block";
+    hasil.className = "result warning";
+    hasil.innerText = "⚠️ Isi semua data dengan benar!";
     return;
   }
 
-  // SIMULASI (bukan WHO asli)
   let standarTinggi = 50 + (umur * 0.7); 
   let standarBerat = 3 + (umur * 0.25);
 
@@ -67,24 +139,33 @@ function hitung() {
 
   let statusTinggi = "";
   let statusBerat = "";
+  let kategori = "normal";
 
-  // Kategori TB/U (stunting)
-  if (zTinggi < -2) {
+  if (zTinggi < -3) {
+    statusTinggi = "Sangat Pendek";
+    kategori = "danger";
+  } else if (zTinggi < -2) {
     statusTinggi = "Stunting";
+    kategori = "warning";
   } else {
     statusTinggi = "Normal";
   }
 
-  // Kategori BB/U
-  if (zBerat < -2) {
+  if (zBerat < -3) {
+    statusBerat = "Gizi Buruk";
+    kategori = "danger";
+  } else if (zBerat < -2) {
     statusBerat = "Gizi Kurang";
+    if (kategori !== "danger") kategori = "warning";
   } else {
     statusBerat = "Gizi Baik";
   }
 
-  document.getElementById("hasil").innerHTML =
-    "Status Tinggi: " + statusTinggi + "<br>" +
-    "Status Berat: " + statusBerat;
+  hasil.style.display = "block";
+  hasil.className = "result " + kategori;
+  hasil.innerHTML =
+    "📏 Tinggi: " + statusTinggi + "<br>" +
+    "⚖️ Berat: " + statusBerat;
 }
 </script>
 
