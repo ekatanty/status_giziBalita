@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Cek Status Gizi Balita</title>
+  <title>Cek Status Gizi Balita (WHO)</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     body {
@@ -10,7 +10,6 @@
       background: linear-gradient(135deg, #74ebd5, #ACB6E5);
       padding: 20px;
     }
-
     .container {
       max-width: 420px;
       background: white;
@@ -18,35 +17,16 @@
       border-radius: 15px;
       margin: auto;
       box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-      animation: fadeIn 0.8s ease-in-out;
     }
-
-    h2 {
-      text-align: center;
-      color: #333;
-      margin-bottom: 20px;
-    }
-
-    label {
-      font-weight: 600;
-      color: #555;
-    }
-
-    input {
+    h2 { text-align: center; }
+    label { font-weight: 600; }
+    input, select {
       width: 100%;
       padding: 12px;
       margin-top: 8px;
       border-radius: 8px;
       border: 1px solid #ccc;
-      transition: 0.3s;
     }
-
-    input:focus {
-      border-color: #6c63ff;
-      outline: none;
-      box-shadow: 0 0 5px rgba(108,99,255,0.5);
-    }
-
     button {
       width: 100%;
       padding: 12px;
@@ -55,113 +35,111 @@
       border-radius: 8px;
       background: #6c63ff;
       color: white;
-      font-size: 16px;
       font-weight: bold;
       cursor: pointer;
-      transition: 0.3s;
     }
-
-    button:hover {
-      background: #574fd6;
-      transform: scale(1.03);
-    }
-
     .result {
       margin-top: 20px;
       padding: 15px;
       border-radius: 10px;
-      font-weight: bold;
       text-align: center;
-      animation: fadeIn 0.5s ease-in-out;
+      font-weight: bold;
     }
-
-    .normal {
-      background: #d4edda;
-      color: #155724;
-    }
-
-    .warning {
-      background: #fff3cd;
-      color: #856404;
-    }
-
-    .danger {
-      background: #f8d7da;
-      color: #721c24;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(15px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+    .normal { background: #d4edda; }
+    .danger { background: #f8d7da; }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h2><i class="fa-solid fa-baby"></i> Cek Status Balita</h2>
+  <h2><i class="fa-solid fa-baby"></i> Cek Status Balita (WHO)</h2>
+
+  <label>Jenis Kelamin</label>
+  <select id="jk">
+    <option value="L">Laki-laki</option>
+    <option value="P">Perempuan</option>
+  </select>
 
   <label>Umur (bulan)</label>
   <input type="number" id="umur">
 
-  <label>Tinggi Badan (cm)</label>
-  <input type="number" id="tinggi">
-
   <label>Berat Badan (kg)</label>
   <input type="number" id="berat">
 
-<label>Jenis Kelamin</label> <select id="jk">
+  <label>Tinggi Badan (cm)</label>
+  <input type="number" id="tinggi">
 
-  <option value="">-- Pilih Jenis Kelamin --</option>
-  <option value="l">Laki-laki</option>
-  <option value="p">Perempuan</option>
-</select>
-
-
-  <button onclick="hitung()"><i class="fa-solid fa-calculator"></i> Hitung</button>
+  <button onclick="hitung()">Hitung</button>
 
   <div class="result" id="hasil"></div>
 </div>
 
 <script>
+// DATA WHO CONTOH (BB/U & TB/U)
+const WHO_BB = {
+  L: {
+    24: {L: -0.1, M: 12.2, S: 0.09}
+  },
+  P: {
+    24: {L: -0.1, M: 11.5, S: 0.09}
+  }
+};
+
+const WHO_TB = {
+  L: {
+    24: {L: 1, M: 87.1, S: 0.04}
+  },
+  P: {
+    24: {L: 1, M: 85.7, S: 0.04}
+  }
+};
+
+function zScore(x, L, M, S) {
+  if (L === 0) return Math.log(x / M) / S;
+  return (Math.pow(x / M, L) - 1) / (L * S);
+}
+
+function kategoriBB(z) {
+  if (z < -3) return "Gizi Buruk";
+  if (z < -2) return "Gizi Kurang";
+  if (z <= 2) return "Normal";
+  return "Gizi Lebih";
+}
+
+function kategoriTB(z) {
+  if (z < -3) return "Stunting Berat";
+  if (z < -2) return "Stunting";
+  if (z <= 2) return "Normal";
+  return "Tinggi";
+}
+
 function hitung() {
-  let umur = parseFloat(document.getElementById("umur").value);
-  let tinggi = parseFloat(document.getElementById("tinggi").value);
-  let berat = parseFloat(document.getElementById("berat").value);
+  let umur = document.getElementById("umur").value;
+  let jk = document.getElementById("jk").value;
+  let bb = parseFloat(document.getElementById("berat").value);
+  let tb = parseFloat(document.getElementById("tinggi").value);
 
   let hasil = document.getElementById("hasil");
 
-  if (!umur || !tinggi || !berat) {
-    hasil.className = "result warning";
-    hasil.innerHTML = "⚠️ Isi semua data!";
+  if (!WHO_BB[jk][umur] || !WHO_TB[jk][umur]) {
+    hasil.className = "result danger";
+    hasil.innerHTML = "Data WHO umur ini belum tersedia";
     return;
   }
 
-  let standarTinggi = 50 + (umur * 0.7);
-  let standarBerat = 3 + (umur * 0.25);
+  let bbData = WHO_BB[jk][umur];
+  let tbData = WHO_TB[jk][umur];
 
-  let zTinggi = (tinggi - standarTinggi) / 3;
-  let zBerat = (berat - standarBerat) / 2;
+  let zBB = zScore(bb, bbData.L, bbData.M, bbData.S);
+  let zTB = zScore(tb, tbData.L, tbData.M, tbData.S);
 
-  let statusTinggi = zTinggi < -2 ? "Stunting" : "Normal";
-  let statusBerat = zBerat < -2 ? "Gizi Kurang" : "Gizi Baik";
+  let statusBB = kategoriBB(zBB);
+  let statusTB = kategoriTB(zTB);
 
-  let kategori = "normal";
-  if (statusTinggi === "Stunting" || statusBerat === "Gizi Kurang") {
-    kategori = "danger";
-  }
-
-  hasil.className = "result " + kategori;
+  hasil.className = "result " + (zBB < -2 || zTB < -2 ? "danger" : "normal");
   hasil.innerHTML = `
-    <i class="fa-solid fa-chart-line"></i><br>
-    Status Tinggi: ${statusTinggi} <br>
-    Status Berat: ${statusBerat}
+    BB/U: ${zBB.toFixed(2)} (${statusBB}) <br>
+    TB/U: ${zTB.toFixed(2)} (${statusTB})
   `;
 }
 </script>
