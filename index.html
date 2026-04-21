@@ -121,10 +121,10 @@ function hitung() {
 
   let hasil = document.getElementById("hasil");
 
-//  if (!WHO_BB[jk][umur] || !WHO_TB[jk][umur]) {
-//    hasil.className = "result danger";
-//    hasil.innerHTML = "Data WHO umur ini belum tersedia";
- //   return;
+  if (!WHO_BB[jk][umur] || !WHO_TB[jk][umur]) {
+    hasil.className = "result danger";
+    hasil.innerHTML = "Data WHO umur ini belum tersedia";
+    return;
   }
 
   let bbData = WHO_BB[jk][umur];
